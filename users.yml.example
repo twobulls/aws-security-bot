@@ -1,0 +1,4 @@
+# This YAML defines an associative array used to map AWS users to Slack users. In each pair, the key is the AWS user name, and the value is the Slack user name.
+---
+alex_on_aws: alex_on_slack
+jesse_on_aws: jesse_on_slack
