@@ -2,3 +2,4 @@ boto3==1.4.5
 slackclient==1.0.7
 configargparse==0.12.0
 pyyaml==3.12
+pytz==2017.2
