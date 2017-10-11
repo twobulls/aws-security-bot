@@ -3,7 +3,7 @@
 
 import boto3
 import bullkit
-import sys
+import time
 import csv
 import yaml
 from slackclient import SlackClient
