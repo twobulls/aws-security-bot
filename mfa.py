@@ -12,11 +12,19 @@ def mfa(commandargs):
 	bad_users = []
 	iam = boto3.resource('iam')
 	for user in iam.users.all():
-		# Iterate through each of the IAM user's MFA devices and note if none exist.
-		bullkit.debug('Checking the MFA devices of: ' + user.name, commandargs)
+		# If the user doesn't have an MFA device...
+		bullkit.debug('Checking IAM user: ' + user.name, commandargs)
 		if not list(user.mfa_devices.all()):
 			bullkit.debug('No MFA devices found for: ' + user.name, commandargs)
-			bad_users.append(user.name)
+
+			# Try to get the user's login profile. If we can, that means they have a password.
+			try:
+				# Note that the user is "bad" because they have a password but no MFA.
+				null = iam.LoginProfile(user.name).create_date
+				bullkit.debug('Password found for: ' + user.name, commandargs)
+				bad_users.append(user.name)
+			except iam.meta.client.exceptions.NoSuchEntityException:
+				bullkit.debug('No password found for: ' + user.name, commandargs)
 	bullkit.debug('List of AWS users without MFA assembled: ' + str(bad_users), commandargs)
 
 	# Format the list of users for Slack.
@@ -26,17 +34,17 @@ def mfa(commandargs):
 		slackmsg = 'All AWS users have enabled multi factor authentication. Yay!'
 
 	# If we've been told to post to Slack...
-	if not commandargs.parse_args().noslack:
+	if not commandargs.parse_args().no_slack:
 		# Post the list to the relevant Slack channel.
-		slack = SlackClient(commandargs.parse_args().slacktoken)
-		slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().mfachannel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
+		slack = SlackClient(commandargs.parse_args().slack_token)
+		slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().mfa_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 
 		# Make sure the post was successful.
 		if slackresult['ok'] is not True:
 			bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
 
 		# If there are users who need to enable MFA and we've been told to nag them...
-		if bad_users and commandargs.parse_args().mfanagusers:
+		if bad_users and commandargs.parse_args().mfa_nag_users:
 			# Load the map of AWS users to Slack users.
 			bullkit.debug('Trying to load the map of AWS users to Slack users...', commandargs)
 			try:

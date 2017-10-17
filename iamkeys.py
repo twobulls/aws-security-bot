@@ -25,8 +25,8 @@ def iamkeys (commandargs):
 			utcnow = timezone('UTC').localize(datetime.utcnow())
 			access_key_age = utcnow - access_key.create_date
 			bullkit.debug('Access key\'s age: ' + str(access_key_age), commandargs)
-			access_key_warn_age = timedelta(days = float(commandargs.parse_args().iamkeyswarnage))
-			access_key_expire_age = timedelta(days = float(commandargs.parse_args().iamkeysexpireage))
+			access_key_warn_age = timedelta(days = float(commandargs.parse_args().iam_keys_warn_age))
+			access_key_expire_age = timedelta(days = float(commandargs.parse_args().iam_keys_expire_age))
 
 			# If the key is approaching expiration...
 			if access_key_age >= access_key_warn_age and access_key_age < access_key_expire_age and access_key.status == 'Active':
@@ -76,11 +76,11 @@ def iamkeys (commandargs):
 		slackmsg = '\n\n'.join(slackmsg_list)
 
 		# If we've been told to post to Slack...
-		if not commandargs.parse_args().noslack:
+		if not commandargs.parse_args().no_slack:
 			bullkit.debug('Sending the list to Slack...', commandargs)
 			# Post the list to the relevant Slack channel.
-			slack = SlackClient(commandargs.parse_args().slacktoken)
-			slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().iamkeyschannel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
+			slack = SlackClient(commandargs.parse_args().slack_token)
+			slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().iam_keys_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 
 			# Make sure the post was successful.
 			if slackresult['ok'] is not True:
@@ -88,7 +88,7 @@ def iamkeys (commandargs):
 			bullkit.debug('Sent successfully.', commandargs)
 
 			# If there are users who need to deactivate their keys and we've been told to nag them...
-			if commandargs.parse_args().iamkeysnagusers:
+			if commandargs.parse_args().iam_keys_nag_users:
 				# Load the map of AWS users to Slack users.
 				bullkit.debug('Trying to load the map of AWS users to Slack users...', commandargs)
 				try:

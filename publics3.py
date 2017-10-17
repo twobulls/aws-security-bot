@@ -35,11 +35,11 @@ def publics3 (commandargs):
 		slackmsg = 'The following S3 buckets are public:\n```' + '\n'.join(bad_buckets_formatted) + '```\nYou should adjust their permissions immediately.'
 
 		# If we've been told to post to Slack...
-		if not commandargs.parse_args().noslack:
+		if not commandargs.parse_args().no_slack:
 			bullkit.debug('Sending the list to Slack...', commandargs)
 			# Post the list to the relevant Slack channel.
-			slack = SlackClient(commandargs.parse_args().slacktoken)
-			slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().publics3channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
+			slack = SlackClient(commandargs.parse_args().slack_token)
+			slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().public_s3_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 
 			# Make sure the post was successful.
 			if slackresult['ok'] is not True:
