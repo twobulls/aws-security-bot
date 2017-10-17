@@ -3,46 +3,20 @@
 
 import boto3
 import bullkit
-import time
-import csv
 import yaml
 from slackclient import SlackClient
 
 def mfa(commandargs):
-	# Get the credential report from AWS.
-	bullkit.debug('Generating IAM report...', commandargs)
-	iam = boto3.client('iam')
-	bullkit.debug('Checking for the IAM report...', commandargs)
-	while iam.generate_credential_report()['State'] != 'COMPLETE':
-		time.sleep(2)
-		bullkit.debug('Checking for the IAM report...', commandargs)
-
-	bullkit.debug('Got the IAM report.', commandargs)
-	users = iam.get_credential_report()['Content']
-
-	# Figure out which column is 'mfa_active'.
-	bullkit.debug('Figuring out which column in the report is \'mfa_active\'...', commandargs)
-	for i, column in enumerate(csv.reader(users.splitlines()).next()):
-		if column == 'mfa_active':
-			break
-	mfa_column_number = i
-	bullkit.debug('It\'s column ' + str(mfa_column_number) + '.', commandargs)
-
-	# Figure out which column is 'password_enabled'.
-	bullkit.debug('Figuring out which column in the report is \'password_enabled\'...', commandargs)
-	for i, column in enumerate(csv.reader(users.splitlines()).next()):
-		if column == 'password_enabled':
-			break
-	password_column_number = i
-	bullkit.debug('It\'s column ' + str(password_column_number) + '.', commandargs)
-
-	# Iterate through the report and make a list of users with passwords but no MFA.
-	bullkit.debug('Iterating through IAM report.', commandargs)
+	# Iterate through each IAM user.
+	bullkit.debug('Getting the list of IAM users...', commandargs)
 	bad_users = []
-	for user in csv.reader(users.splitlines()):
-		if user[mfa_column_number] == 'false':
-			if user[password_column_number] != 'false':
-				bad_users.append(user[0])
+	iam = boto3.resource('iam')
+	for user in iam.users.all():
+		# Iterate through each of the IAM user's MFA devices and note if none exist.
+		bullkit.debug('Checking the MFA devices of: ' + user.name, commandargs)
+		if not list(user.mfa_devices.all()):
+			bullkit.debug('No MFA devices found for: ' + user.name, commandargs)
+			bad_users.append(user.name)
 	bullkit.debug('List of AWS users without MFA assembled: ' + str(bad_users), commandargs)
 
 	# Format the list of users for Slack.

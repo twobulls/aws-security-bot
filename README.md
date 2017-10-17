@@ -2,10 +2,11 @@
 
 ## About
 
-This tool performs various security checks on an Amazon Web Services account:
+This tool performs various security checks on an Amazon Web Services account to ensure:
 
 * All IAM users have multi-factor authentication enabled.
 * No S3 buckets have any public permissions.
+* All IAM users' access keys are below a certain age.
 
 If a violation of those rules is found, it can either print its findings to standard output or send a message to Slack. It can even nag IAM users directly if you map their user names to Slack user names.
 
@@ -34,6 +35,21 @@ Options may be provided either on the command line or in environment variables. 
                         The Slack channel to which we should post the results
                         of the public S3 bucket check. [env var:
                         PUBLICS3CHANNEL]
+  --iamkeys             Check for expired IAM access keys. [env var: IAMKEYS]
+  --iamkeyschannel IAMKEYSCHANNEL
+                        The Slack channel to which we should post the results
+                        of the expired IAM access key check. [env var:
+                        IAMKEYSCHANNEL]
+  --iamkeysnagusers     Send Slack messages directly to users who need to
+                        disable expired IAM access keys. Relies on a properly
+                        populated users.yml file. [env var: IAMKEYSNAGUSERS]
+  --iamkeyswarnage IAMKEYSWARNAGE
+                        The age (in days) of IAM access keys after which we
+                        should start sending warnings. [env var:
+                        IAMKEYSWARNAGE]
+  --iamkeysexpireage IAMKEYSEXPIREAGE
+                        The age (in days) that IAM access keys are not allowed
+                        to exceed. [env var: IAMKEYSEXPIREAGE]
 ```
 
 ### Slack integration

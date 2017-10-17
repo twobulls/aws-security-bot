@@ -87,7 +87,7 @@ def iamkeys (commandargs):
 				bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
 			bullkit.debug('Sent successfully.', commandargs)
 
-			# If there are users who need to disable their keys and we've been told to nag them...
+			# If there are users who need to deactivate their keys and we've been told to nag them...
 			if commandargs.parse_args().iamkeysnagusers:
 				# Load the map of AWS users to Slack users.
 				bullkit.debug('Trying to load the map of AWS users to Slack users...', commandargs)
@@ -118,10 +118,13 @@ def iamkeys (commandargs):
 							slackmsg_list = []
 							slackmsg_list.append('Hi, it\'s me, your friendly AWS Security Bot!')
 							if bad_user in expired_keys:
-								slackmsg_list.append('You have the following IAM access key(s) that have expired. You must disable them immediately.\n```' + '\n'.join(expired_keys[bad_user]) + '```')
+								slackmsg_list.append('You have the following IAM access key(s) that have expired. You must deactivate them immediately.\n```' + '\n'.join(expired_keys[bad_user]) + '```')
 							if bad_user in keys_to_warn:
-								slackmsg_list.append('You have the following IAM access key(s) that are expiring soon. You must disable them before their stated expiration date.\n```' + '\n'.join(keys_to_warn[bad_user]) + '```')
-							slackmsg_list.append('For instructions on disabling your access keys and replacing them with new ones, please see the section titled `To rotate access keys without interrupting your applications (console)` on this page: http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey')
+								keys_to_warn_formatted = []
+								for access_key in keys_to_warn[bad_user]:
+									keys_to_warn_formatted.append(str(access_key['id'] + ' (expires in ' + str(access_key['time left'].days) + ' days)'))
+								slackmsg_list.append('You have the following IAM access key(s) that are expiring soon. You must deactivate them before their stated expiration date.\n```' + '\n'.join(keys_to_warn_formatted) + '```')
+							slackmsg_list.append('For instructions on deactivating your access keys and replacing them with new ones, please visit http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey and perform the steps in the section titled: `To rotate access keys without interrupting your applications (console)`')
 							slackmsg = '\n\n'.join(slackmsg_list)
 							bullkit.debug('Message body: ' + slackmsg, commandargs)
 

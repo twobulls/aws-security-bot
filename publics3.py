@@ -3,23 +3,21 @@
 
 import boto3
 import bullkit
-import sys
 from slackclient import SlackClient
 
 def publics3 (commandargs):
 	bad_buckets = {}
 	bullkit.debug('Getting the list of S3 buckets...', commandargs)
-	client = boto3.client('s3')
-	for bucket in client.list_buckets()['Buckets']:
-		bullkit.debug('Checking the ACL of: ' + bucket['Name'], commandargs)
-		bucketacl = boto3.resource('s3').BucketAcl(bucket['Name'])
-		for grant in bucketacl.grants:
-			if grant['Grantee']['Type'] == 'Group':
+	s3 = boto3.resource('s3')
+	for bucket in s3.buckets.all():
+		bullkit.debug('Checking the ACL of: ' + bucket.name, commandargs)
+		for grant in s3.BucketAcl(bucket.name).grants:
+			if grant['Grantee']['Type'] == 'Group' and 'URI' in grant['Grantee'].keys():
 				if grant['Grantee']['URI'] == 'http://acs.amazonaws.com/groups/global/AllUsers':
-					if not bad_buckets.get(bucket['Name']):
+					if not bad_buckets.get(bucket.name):
 						bullkit.debug('Oh no, it\'s public!', commandargs)
-						bad_buckets[bucket['Name']] = []
-					bad_buckets[bucket['Name']].append(grant['Permission'])
+						bad_buckets[bucket.name] = []
+					bad_buckets[bucket.name].append(grant['Permission'])
 
 	# If we didn't find any public buckets...
 	if not bad_buckets:
