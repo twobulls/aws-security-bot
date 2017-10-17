@@ -53,7 +53,7 @@ def mfa(commandargs):
 			if slack_users:
 				bullkit.debug('Iterating through bad AWS users to see if we can Slack them directly...', commandargs)
 				for bad_user in bad_users:
-					if slack_users[bad_user]:
+					if bad_user in slack_users.keys():
 						bullkit.debug('Trying to message @' + slack_users[bad_user], commandargs)
 						slackmsg = 'Hi, it\'s me, your friendly AWS Security Bot! It looks like your AWS user (' + bad_user + ') doesn\'t have MFA (i.e. two-factor authentication) enabled. This is an important security feature that you should enable, so please visit http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html and perform the steps in the section titled: `Enable a Virtual MFA Device for an IAM User (AWS Management Console)`'
 						slackresult = slack.api_call('chat.postMessage', channel='@' + slack_users[bad_user], username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
