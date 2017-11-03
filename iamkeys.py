@@ -111,7 +111,7 @@ def iamkeys (commandargs):
 					# Try to message each user directly via Slack.
 					bullkit.debug('Iterating through bad AWS users to see if we can Slack them directly...', commandargs)
 					for bad_user in bad_users:
-						if bad_user in slack_users:
+						if bad_user in slack_users.keys():
 							bullkit.debug('Trying to message @' + slack_users[bad_user], commandargs)
 
 							# Assemble the Slack message.

@@ -69,6 +69,8 @@ def mfa(commandargs):
 						# Make sure the post was successful.
 						if slackresult['ok'] is not True:
 							bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
+					else:
+						bullkit.debug('Couldn\'t find AWS user ' + bad_user + ' in the user map.', commandargs)
 
 	# If we've been told to *not* post to Slack...
 	else:
