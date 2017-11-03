@@ -131,7 +131,7 @@ def iamkeys (commandargs):
 							# Try to post the Slack message.
 							slackresult = slack.api_call('chat.postMessage', channel='@' + slack_users[bad_user], username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 							if slackresult['ok'] is not True:
-								bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
+								bullkit.stderr('Error sending Slack message to @' + slack_users[bad_user] + '. Slack said: ' + slackresult['error'])
 						else:
 							bullkit.debug('Couldn\'t find AWS user ' + bad_user + ' in the user map.', commandargs)
 
