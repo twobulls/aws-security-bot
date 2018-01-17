@@ -13,7 +13,7 @@ def publics3 (commandargs):
 		bullkit.debug('Checking the ACL of: ' + bucket.name, commandargs)
 		for grant in s3.BucketAcl(bucket.name).grants:
 			if grant['Grantee']['Type'] == 'Group' and 'URI' in grant['Grantee'].keys():
-				if grant['Grantee']['URI'] == 'http://acs.amazonaws.com/groups/global/AllUsers':
+				if grant['Grantee']['URI'] in ['http://acs.amazonaws.com/groups/global/AllUsers', 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers']:
 					if not bad_buckets.get(bucket.name):
 						bullkit.debug('Oh no, it\'s public!', commandargs)
 						bad_buckets[bucket.name] = []
