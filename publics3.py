@@ -3,7 +3,6 @@
 
 import boto3
 import bullkit
-from slackclient import SlackClient
 
 def publics3 (commandargs):
 	bad_buckets = {}
@@ -36,15 +35,9 @@ def publics3 (commandargs):
 
 	# If we've been told to post to Slack...
 	if not commandargs.parse_args().no_slack:
-		bullkit.debug('Posting our findings to Slack...', commandargs)
 		# Post the list to the relevant Slack channel.
-		slack = SlackClient(commandargs.parse_args().slack_token)
-		slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().public_s3_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-
-		# Make sure the post was successful.
-		if slackresult['ok'] is not True:
-			bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
-		bullkit.debug('Sent successfully.', commandargs)
+		bullkit.debug('Posting our findings to Slack...', commandargs)
+		bullkit.send_slack_message('chat.postMessage', channel=commandargs.parse_args().public_s3_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 
 	# If we've been told to *not* post to Slack...
 	else:

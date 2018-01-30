@@ -5,7 +5,6 @@ import boto3
 import bullkit
 from datetime import datetime, timedelta
 from pytz import timezone
-from slackclient import SlackClient
 import yaml
 
 def iamkeys (commandargs):
@@ -77,15 +76,9 @@ def iamkeys (commandargs):
 
 		# If we've been told to post to Slack...
 		if not commandargs.parse_args().no_slack:
-			bullkit.debug('Sending the list to Slack...', commandargs)
 			# Post the list to the relevant Slack channel.
-			slack = SlackClient(commandargs.parse_args().slack_token)
-			slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().iam_keys_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-
-			# Make sure the post was successful.
-			if slackresult['ok'] is not True:
-				bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
-			bullkit.debug('Sent successfully.', commandargs)
+			bullkit.debug('Sending the list to Slack...', commandargs)
+			bullkit.send_slack_message(commandargs.parse_args().iam_keys_channel, 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 
 			# If there are users who need to deactivate their keys and we've been told to nag them...
 			if commandargs.parse_args().iam_keys_nag_users:
@@ -128,10 +121,8 @@ def iamkeys (commandargs):
 							slackmsg = '\n\n'.join(slackmsg_list)
 							bullkit.debug('Message body: ' + slackmsg, commandargs)
 
-							# Try to post the Slack message.
-							slackresult = slack.api_call('chat.postMessage', channel='@' + slack_users[bad_user], username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-							if slackresult['ok'] is not True:
-								bullkit.stderr('Error sending Slack message to @' + slack_users[bad_user] + '. Slack said: ' + slackresult['error'])
+							# Send the Slack message.
+							bullkit.send_slack_message('@' + slack_users[bad_user], 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 						else:
 							bullkit.debug('Couldn\'t find AWS user ' + bad_user + ' in the user map.', commandargs)
 

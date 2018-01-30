@@ -4,7 +4,6 @@
 import boto3
 import bullkit
 import yaml
-from slackclient import SlackClient
 
 def mfa(commandargs):
 	# Iterate through each IAM user.
@@ -36,12 +35,7 @@ def mfa(commandargs):
 	# If we've been told to post to Slack...
 	if not commandargs.parse_args().no_slack:
 		# Post the list to the relevant Slack channel.
-		slack = SlackClient(commandargs.parse_args().slack_token)
-		slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().mfa_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-
-		# Make sure the post was successful.
-		if slackresult['ok'] is not True:
-			bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
+		bullkit.send_slack_message('chat.postMessage', channel=commandargs.parse_args().mfa_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 
 		# If there are users who need to enable MFA and we've been told to nag them...
 		if bad_users and commandargs.parse_args().mfa_nag_users:
@@ -64,11 +58,7 @@ def mfa(commandargs):
 					if bad_user in slack_users.keys():
 						bullkit.debug('Trying to message @' + slack_users[bad_user], commandargs)
 						slackmsg = 'Hi, it\'s me, your friendly AWS Security Bot! It looks like your AWS user (' + bad_user + ') doesn\'t have MFA (i.e. two-factor authentication) enabled. This is an important security feature that you should enable, so please visit http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html and perform the steps in the section titled: `Enable a Virtual MFA Device for an IAM User (AWS Management Console)`'
-						slackresult = slack.api_call('chat.postMessage', channel='@' + slack_users[bad_user], username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-
-						# Make sure the post was successful.
-						if slackresult['ok'] is not True:
-							bullkit.stderr('Error sending Slack message to @' + slack_users[bad_user] + '. Slack said: ' + slackresult['error'])
+						bullkit.send_slack_message('@' + slack_users[bad_user], 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 					else:
 						bullkit.debug('Couldn\'t find AWS user ' + bad_user + ' in the user map.', commandargs)
 
