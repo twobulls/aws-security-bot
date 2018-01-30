@@ -1,4 +1,5 @@
-# This YAML defines an associative array used to map AWS users to Slack users. In each pair, the key is the AWS user name, and the value is the Slack user name.
+# This YAML defines an associative array used to map AWS users to Slack users. In each pair, the key is the AWS user name, and the value is the Slack user name. If you set a Slack user name to False, it will silence our message to the Slack channel about being unable to message them directly.
 ---
 alex_on_aws: alex_on_slack
 jesse_on_aws: jesse_on_slack
+service_on_aws: False
