@@ -20,8 +20,9 @@ def publics3 (commandargs):
 
 	# If we didn't find any public buckets...
 	if not bad_buckets:
-		bullkit.debug('No public buckets found, nice!', commandargs)
 		slackmsg = 'No S3 buckets have public permissions. Yay!'
+		bullkit.debug(slackmsg, commandargs)
+		bullkit.send_slack_message('chat.postMessage', channel=commandargs.parse_args().public_s3_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
 	
 	# If we found public buckets...
 	else:
