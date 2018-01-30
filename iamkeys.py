@@ -125,6 +125,8 @@ def iamkeys (commandargs):
 							bullkit.send_slack_message('@' + slack_users[bad_user], 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 						else:
 							bullkit.debug('Couldn\'t find AWS user ' + bad_user + ' in the user map.', commandargs)
+							slackmsg='I don\'t know the Slack name of the AWS user `' + bad_user + '` so I could not send them a message directly. Please update my `users.yml` file so I can message them in the future.'
+							bullkit.send_slack_message(commandargs.parse_args().iam_keys_channel, 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 
 		# If we've been told to *not* post to Slack...
 		else:
