@@ -139,3 +139,6 @@ urllib3/
 websocket/
 websocket_client-0.47.0.dist-info/
 yaml/
+
+# serverless
+.serverless

@@ -95,6 +95,30 @@ This tool requires several IAM permissions in order to examine your account. The
 }
 ```
 
+### Deploying with Serverless Framework
+You can optionally deploy this service using Serverless Framework. 
+It will run at 10:55am every weekday. This has been test with Serverless Framework 
+v1.26.1
+
+###### Install Serverless Framework
+First, install `npm` using whatever method you prefer, e.g.,
+`brew install npm`
+
+Then: 
+
+`npm install -g serverless` 
+
+###### Install pip packages
+`pip install -r requirements.txt -t .`
+
+###### Deploy
+Replace `<stage>` and `<region>` in the call below. 
+`sls deploy -s <stage> --region <region>`
+
+This will use your default credentials in the `~.aws/credentials` file. In order
+to use a different profile do the following:
+`AWS_PROFILE=other_profile sls deploy -s somestage --region some_region`
+
 ### Examples
 
 Check for IAM users without MFA, but don't send any messages to Slack:

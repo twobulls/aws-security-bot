@@ -1,13 +1,12 @@
-service: throwaway
+service: securitybot
 
 frameworkVersion: ">=1.26.1 <2.0.0"
 
 provider:
   name: aws
   runtime: python2.7
-  profile: ${opt:provider}
   stage: ${opt:stage, "dev"}
-  region: us-east-1
+  region: ${opt:region, "us-east-2"}
   logRetentionInDays: 7
   deploymentBucket:
     serverSideEncryption: AES256
@@ -37,12 +36,12 @@ provider:
     MFA_NAG_USERS: ${ssm:/SECBOT_MFA_NAG_USERS}
     PUBLIC_S3: ${ssm:/SECBOT_PUBLIC_S3}
     PUBLIC_S3_CHANNEL: ${ssm:/SECBOT_PUBLIC_S3_CHANNEL}
-    SLACK_TOKEN: {$ssm:/SECBOT_SLACK_TOKEN}
-    VERBOSE: {$ssm:/SECBOT_VERBOSE}
+    SLACK_TOKEN: ${ssm:/SECBOT_SLACK_TOKEN~true}
+    VERBOSE: ${ssm:/SECBOT_VERBOSE}
 
 functions:
   securitybot:
-    handler: handler.hello
-
+    handler: aws-security-bot.main
     events:
-      - schedule: cron(55 10 * * *)
+      - schedule: 
+          rate: cron(55 10 ? * MON-FRI *)
