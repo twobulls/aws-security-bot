@@ -97,8 +97,8 @@ This tool requires several IAM permissions in order to examine your account. The
 
 ### Deploying with Serverless Framework
 You can optionally deploy this service using Serverless Framework. 
-It will run at 10:55am every weekday. This has been test with Serverless Framework 
-v1.26.1
+It will run at 10:55am every weekday using the server's timezone. 
+This has been test with Serverless Framework v1.26.1.
 
 ###### Install Serverless Framework
 First, install `npm` using whatever method you prefer, e.g.,
