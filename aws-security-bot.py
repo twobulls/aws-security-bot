@@ -54,7 +54,7 @@ def main(*arg):
 			bullkit.abort('--iam-keys-expire-age must be specified if you\'re checking for expired IAM access keys with --iam-keys')
 
 		# ...fail if the maximum key age isn't greater than the key warning age.
-		if commandargs.parse_args().iam_keys_warn_age >= commandargs.parse_args().iam_keys_expire_age:
+		if int(commandargs.parse_args().iam_keys_warn_age) >= int(commandargs.parse_args().iam_keys_expire_age):
 			bullkit.abort('--iam-keys-expire-age must be greater than --iam-keys-warn-age')
 
 	if commandargs.parse_args().mfa:
