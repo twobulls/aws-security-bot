@@ -101,3 +101,44 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# ignore packages when deploying locally
+ConfigArgParse-0.12.0.dist-info/
+PyYAML-3.12.dist-info/
+boto3-1.4.5.dist-info/
+boto3/
+botocore-1.5.95.dist-info/
+botocore/
+certifi-2018.4.16.dist-info/
+certifi/
+chardet-3.0.4.dist-info/
+chardet/
+concurrent/
+configargparse.py
+dateutil/
+docutils-0.14.dist-info/
+docutils/
+futures-3.2.0.dist-info/
+idna-2.6.dist-info/
+idna/
+jmespath-0.9.3.dist-info/
+jmespath/
+python_dateutil-2.7.2.dist-info/
+pytz-2017.2.dist-info/
+pytz/
+requests-2.18.4.dist-info/
+requests/
+s3transfer-0.1.13.dist-info/
+s3transfer/
+six-1.11.0.dist-info/
+six.py
+slackclient-1.0.7.dist-info/
+slackclient/
+urllib3-1.22.dist-info/
+urllib3/
+websocket/
+websocket_client-0.47.0.dist-info/
+yaml/
+
+# serverless
+.serverless

@@ -69,6 +69,9 @@ def main(*arg):
 		import iamkeys
 		iamkeys.iamkeys(commandargs)
 
+	return "AWS Security Bot ran succesfully."
+
+
 # Only execute main() if we're being executed, not if we're being imported.
 if __name__ == "__main__":
 	main()
