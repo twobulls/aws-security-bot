@@ -5,7 +5,6 @@ import boto3
 import bullkit
 from datetime import datetime, timedelta
 from pytz import timezone
-from slackclient import SlackClient
 import yaml
 
 def iamkeys (commandargs):
@@ -77,15 +76,9 @@ def iamkeys (commandargs):
 
 		# If we've been told to post to Slack...
 		if not commandargs.parse_args().no_slack:
-			bullkit.debug('Sending the list to Slack...', commandargs)
 			# Post the list to the relevant Slack channel.
-			slack = SlackClient(commandargs.parse_args().slack_token)
-			slackresult = slack.api_call('chat.postMessage', channel=commandargs.parse_args().iam_keys_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-
-			# Make sure the post was successful.
-			if slackresult['ok'] is not True:
-				bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
-			bullkit.debug('Sent successfully.', commandargs)
+			bullkit.debug('Sending the list to Slack...', commandargs)
+			bullkit.send_slack_message(commandargs.parse_args().iam_keys_channel, 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 
 			# If there are users who need to deactivate their keys and we've been told to nag them...
 			if commandargs.parse_args().iam_keys_nag_users:
@@ -111,29 +104,32 @@ def iamkeys (commandargs):
 					# Try to message each user directly via Slack.
 					bullkit.debug('Iterating through bad AWS users to see if we can Slack them directly...', commandargs)
 					for bad_user in bad_users:
-						if bad_user in slack_users:
-							bullkit.debug('Trying to message @' + slack_users[bad_user], commandargs)
+						if bad_user in slack_users.keys():
+							if slack_users[bad_user] is not False:
+								bullkit.debug('Trying to message @' + slack_users[bad_user], commandargs)
 
-							# Assemble the Slack message.
-							slackmsg_list = []
-							slackmsg_list.append('Hi, it\'s me, your friendly AWS Security Bot!')
-							if bad_user in expired_keys:
-								slackmsg_list.append('You have the following IAM access key(s) that have expired. You must deactivate them immediately.\n```' + '\n'.join(expired_keys[bad_user]) + '```')
-							if bad_user in keys_to_warn:
-								keys_to_warn_formatted = []
-								for access_key in keys_to_warn[bad_user]:
-									keys_to_warn_formatted.append(str(access_key['id'] + ' (expires in ' + str(access_key['time left'].days) + ' days)'))
-								slackmsg_list.append('You have the following IAM access key(s) that are expiring soon. You must deactivate them before their stated expiration date.\n```' + '\n'.join(keys_to_warn_formatted) + '```')
-							slackmsg_list.append('For instructions on deactivating your access keys and replacing them with new ones, please visit http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey and perform the steps in the section titled: `To rotate access keys without interrupting your applications (console)`')
-							slackmsg = '\n\n'.join(slackmsg_list)
-							bullkit.debug('Message body: ' + slackmsg, commandargs)
+								# Assemble the Slack message.
+								slackmsg_list = []
+								slackmsg_list.append('Hi, it\'s me, your friendly AWS Security Bot!')
+								if bad_user in expired_keys:
+									slackmsg_list.append('You have the following IAM access key(s) that have expired. You must deactivate them immediately.\n```' + '\n'.join(expired_keys[bad_user]) + '```')
+								if bad_user in keys_to_warn:
+									keys_to_warn_formatted = []
+									for access_key in keys_to_warn[bad_user]:
+										keys_to_warn_formatted.append(str(access_key['id'] + ' (expires in ' + str(access_key['time left'].days) + ' days)'))
+									slackmsg_list.append('You have the following IAM access key(s) that are expiring soon. You must deactivate them before their stated expiration date.\n```' + '\n'.join(keys_to_warn_formatted) + '```')
+								slackmsg_list.append('For instructions on deactivating your access keys and replacing them with new ones, please visit http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey and perform the steps in the section titled: `To rotate access keys without interrupting your applications (console)`')
+								slackmsg = '\n\n'.join(slackmsg_list)
+								bullkit.debug('Message body: ' + slackmsg, commandargs)
 
-							# Try to post the Slack message.
-							slackresult = slack.api_call('chat.postMessage', channel='@' + slack_users[bad_user], username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg)
-							if slackresult['ok'] is not True:
-								bullkit.abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
+								# Send the Slack message.
+								bullkit.send_slack_message('@' + slack_users[bad_user], 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
+							else:
+								bullkit.debug('Ignoring ' + bad_user + 'because it\'s set to False in users.yml.', commandargs)
 						else:
 							bullkit.debug('Couldn\'t find AWS user ' + bad_user + ' in the user map.', commandargs)
+							slackmsg='I don\'t know the Slack name of the AWS user `' + bad_user + '` so I could not send them a message directly. Please update my `users.yml` file so I can message them in the future.'
+							bullkit.send_slack_message(commandargs.parse_args().iam_keys_channel, 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 
 		# If we've been told to *not* post to Slack...
 		else:
