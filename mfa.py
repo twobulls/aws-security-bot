@@ -35,7 +35,7 @@ def mfa(commandargs):
 	# If we've been told to post to Slack...
 	if not commandargs.parse_args().no_slack:
 		# Post the list to the relevant Slack channel.
-		bullkit.send_slack_message('chat.postMessage', channel=commandargs.parse_args().mfa_channel, username='AWS Security Bot', icon_emoji=':robot_face:', text=slackmsg, commandargs)
+		bullkit.send_slack_message(commandargs.parse_args().mfa_channel, 'AWS Security Bot', ':robot_face:', slackmsg, commandargs)
 
 		# If there are users who need to enable MFA and we've been told to nag them...
 		if bad_users and commandargs.parse_args().mfa_nag_users:
