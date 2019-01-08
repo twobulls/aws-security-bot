@@ -9,7 +9,7 @@ def publics3 (commandargs):
 	bullkit.debug('Getting the list of S3 buckets...', commandargs)
 	s3 = boto3.resource('s3')
 	for bucket in s3.buckets.all():
-		bullkit.debug('Checking the ACL of: ' + bucket.name, commandargs)
+		bullkit.debug('Checking the ACL of: {}'.format(bucket.name), commandargs)
 		for grant in s3.BucketAcl(bucket.name).grants:
 			if grant['Grantee']['Type'] == 'Group' and 'URI' in grant['Grantee'].keys():
 				if grant['Grantee']['URI'] in ['http://acs.amazonaws.com/groups/global/AllUsers', 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers']:
@@ -26,12 +26,14 @@ def publics3 (commandargs):
 	# If we found public buckets...
 	else:
 		# Format the list into a string for a Slack message.
-		bullkit.debug('Found these public buckets: ' + str(bad_buckets), commandargs)
+		bullkit.debug('Found these public buckets: {}'.format(bad_buckets), commandargs)
 		bullkit.debug('Formatting the list of bad buckets...', commandargs)
-		bad_buckets_formatted = []
+		bad_buckets_list = []
 		for bucket, privs in bad_buckets.items():
-			bad_buckets_formatted.append(bucket + ': ' + str(privs))
-		slackmsg = 'The following S3 buckets are public:\n```' + '\n'.join(bad_buckets_formatted) + '```\nYou should adjust their permissions immediately.'
+			bad_bucket = '{}: {}'.format(bucket, privs)
+			bad_buckets_list.append(bad_bucket)
+		bad_buckets_str = '\n'.join(bad_buckets_list)
+		slackmsg = 'The following S3 buckets are public:\n```{}```\nYou should adjust their permissions immediately.'.format(bad_buckets_str)
 
 	# If we've been told to post to Slack...
 	if not commandargs.parse_args().no_slack:
