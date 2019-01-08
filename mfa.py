@@ -70,4 +70,4 @@ def mfa(commandargs):
 	# If we've been told to *not* post to Slack...
 	else:
 		# Print the list to standard output.
-		print slackmsg
+		print(slackmsg)

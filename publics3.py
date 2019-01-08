@@ -29,7 +29,7 @@ def publics3 (commandargs):
 		bullkit.debug('Found these public buckets: ' + str(bad_buckets), commandargs)
 		bullkit.debug('Formatting the list of bad buckets...', commandargs)
 		bad_buckets_formatted = []
-		for bucket, privs in bad_buckets.iteritems():
+		for bucket, privs in bad_buckets.items():
 			bad_buckets_formatted.append(bucket + ': ' + str(privs))
 		slackmsg = 'The following S3 buckets are public:\n```' + '\n'.join(bad_buckets_formatted) + '```\nYou should adjust their permissions immediately.'
 
@@ -42,4 +42,4 @@ def publics3 (commandargs):
 	# If we've been told to *not* post to Slack...
 	else:
 		# Print the list to standard output.
-		print slackmsg
+		print(slackmsg)
