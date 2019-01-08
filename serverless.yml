@@ -45,3 +45,7 @@ functions:
     events:
       - schedule: 
           rate: cron(55 10 ? * MON-FRI *)
+
+plugins:
+  - serverless-python-requirements
+
