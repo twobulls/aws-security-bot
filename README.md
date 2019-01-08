@@ -108,16 +108,22 @@ Then:
 
 `npm install -g serverless` 
 
-###### Install pip packages
-`pip install -r requirements.txt -t .`
+###### Configure
+By default, this Serverless deploy retrieves the options described in the "Usage" section above from AWS System Manager's parameter store and copies them into the Lambda's environment variables. Since AWS System Manager's parameters are not application-specific, we use the same environment variable names as discussed in the above section, prefaced with `SECBOT_` to avoid collisions with other applications. So, add the options you desire to AWS System Manager's parameter store.
+
+Alternately, you can hardcode the environment variables in the `environment` section of `serverless.yml`.
+
+Next, create your `users.yml` file in the working directory, so that it will get included in the deploy.
+
+Optionally, adjust the execution schedule in the `schedule` section of `serverless.yml` as outlined in [the Serverless docs](https://serverless.com/framework/docs/providers/aws/events/schedule/).
 
 ###### Deploy
 Replace `<stage>` and `<region>` in the call below. 
 `sls deploy -s <stage> --region <region>`
 
 This will use your default credentials in the `~/.aws/credentials` file. In order
-to use a different profile do the following:
-`AWS_PROFILE=other_profile sls deploy -s somestage --region some_region`
+to use a different profile, you can use the `AWS_PROFILE` environment variable:
+`AWS_PROFILE=<profile> sls deploy -s <stage> --region <region>`
 
 ### Examples
 
