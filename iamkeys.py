@@ -97,7 +97,7 @@ def iamkeys (commandargs):
 				# If we were able to assemble a map of AWS users to Slack users...
 				if slack_users:
 					# Assemble a list of users that need notification.
-					bad_users = [*keys_to_warn] + [*expired_keys]
+					bad_users = [*keys_to_warn, *expired_keys]
 
 					# Try to message each user directly via Slack.
 					bullkit.debug('Iterating through bad AWS users to see if we can Slack them directly...', commandargs)
