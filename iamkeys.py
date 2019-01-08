@@ -58,7 +58,7 @@ def iamkeys (commandargs):
 			bullkit.debug('Found these access keys that are approaching expiration: ' + str(keys_to_warn), commandargs)
 			bullkit.debug('Formatting the list of keys that expire soon...', commandargs)
 			keys_to_warn_formatted = []
-			for user, access_key in keys_to_warn.iteritems():
+			for user, access_key in keys_to_warn.items():
 				keys_to_warn_formatted.append(user + ': ' + str(access_key[0]['id'] + ' (expires in ' + str(access_key[0]['time left'].days) + ' days)'))
 			slackmsg_list.append('The following IAM access keys expire soon:\n```' + '\n'.join(keys_to_warn_formatted) + '```\nThey should be deactivated and replaced ASAP.')
 
@@ -67,7 +67,7 @@ def iamkeys (commandargs):
 			bullkit.debug('Found these expired access keys: ' + str(expired_keys), commandargs)
 			bullkit.debug('Formatting the list of expired access keys...', commandargs)
 			expired_keys_formatted = []
-			for user, access_key in expired_keys.iteritems():
+			for user, access_key in expired_keys.items():
 				expired_keys_formatted.append(user + ': ' + str(access_key))
 			slackmsg_list.append('The following IAM access keys are expired:\n```' + '\n'.join(expired_keys_formatted) + '```\nThey should be deactivated and replaced immediately.')
 
@@ -97,9 +97,7 @@ def iamkeys (commandargs):
 				# If we were able to assemble a map of AWS users to Slack users...
 				if slack_users:
 					# Assemble a list of users that need notification.
-					keys_to_warn_users = keys_to_warn.keys()
-					expired_keys_users = expired_keys.keys()
-					bad_users = keys_to_warn_users + expired_keys_users
+					bad_users = [*keys_to_warn] + [*expired_keys]
 
 					# Try to message each user directly via Slack.
 					bullkit.debug('Iterating through bad AWS users to see if we can Slack them directly...', commandargs)
@@ -134,4 +132,4 @@ def iamkeys (commandargs):
 		# If we've been told to *not* post to Slack...
 		else:
 			# Print the list to standard output.
-			print slackmsg
+			print(slackmsg)
