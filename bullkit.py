@@ -6,7 +6,7 @@ from slackclient import SlackClient
 
 # Function for outputting text to stderr.
 def stderr(message):
-	sys.stderr.write(message + '\n')
+	sys.stderr.write('{}\n'.format(message))
 
 # Function for outputting debug messages only if the "verbose" option is enabled.
 def debug(message, commandargs):
@@ -33,5 +33,5 @@ def send_slack_message(channel, my_name, my_emoji, message, commandargs):
 
 	# Make sure the post was successful.
 	if slackresult['ok'] is not True:
-		abort('Posting to Slack was unsuccessful. Slack said:\n' + str(slackresult))
+		abort('Posting to Slack was unsuccessful. Slack said:\n{}'.format(slackresult))
 	debug('Posting to Slack was successfull.', commandargs)
