@@ -1,9 +1,23 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright 2019 Two Bulls Holdings Pty Ltd
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 import configargparse
-import bullkit
+from bullkit import Bullkit
 
 def main(*arg):
 	# Parse command line options.
@@ -22,55 +36,21 @@ def main(*arg):
 	commandargs.add_argument('--iam-keys-warn-age', env_var='IAM_KEYS_WARN_AGE', help='The age (in days) of IAM access keys after which we should start sending warnings.')
 	commandargs.add_argument('--iam-keys-expire-age', env_var='IAM_KEYS_EXPIRE_AGE', help='The age (in days) that IAM access keys are not allowed to exceed.')
 
-	# If we're supposed to talk to Slack...
-	if not commandargs.parse_args().no_slack:
-		# ...fail if the API token hasn't been provided.
-		if not commandargs.parse_args().slack_token:
-			bullkit.abort('--slack-token must be specified if you\'re not suppressing Slack output with --no-slack')
-
-		# ...fail if we've not been told what Slack channel to use for MFA results.
-		if commandargs.parse_args().mfa:
-			if not commandargs.parse_args().mfa_channel:
-				bullkit.abort('--mfa-channel must be specified if you\'re using --mfa without --no-slack')
-
-		# ...fail if we've not been told what Slack channel to use for public S3 results.
-		if commandargs.parse_args().public_s3:
-			if not commandargs.parse_args().public_s3_channel:
-				bullkit.abort('--public-s3-channel must be specified if you\'re using --public-s3 without --no-slack')
-
-		# ...fail if we've not been told what Slack channel to use for IAM access key results.
-		if commandargs.parse_args().iam_keys:
-			if not commandargs.parse_args().iam_keys_channel:
-				bullkit.abort('--iam-keys-channel must be specified if you\'re using --iam-keys without --no-slack')
-
-	# If we're supposed to check IAM keys...
-	if commandargs.parse_args().iam_keys:
-		# ...fail if a key warning age hasn't been provided.
-		if not commandargs.parse_args().iam_keys_warn_age:
-			bullkit.abort('--iam-keys-warn-age must be specified if you\'re checking for expired IAM access keys with --iam-keys')
-
-		# ...fail if a maximum key age hasn't been provided.
-		if not commandargs.parse_args().iam_keys_expire_age:
-			bullkit.abort('--iam-keys-expire-age must be specified if you\'re checking for expired IAM access keys with --iam-keys')
-
-		# ...fail if the maximum key age isn't greater than the key warning age.
-		if int(commandargs.parse_args().iam_keys_warn_age) >= int(commandargs.parse_args().iam_keys_expire_age):
-			bullkit.abort('--iam-keys-expire-age must be greater than --iam-keys-warn-age')
+	bk = Bullkit(commandargs)
 
 	if commandargs.parse_args().mfa:
 		import mfa
-		mfa.mfa(commandargs)
+		mfa.mfa(bk)
 
 	if commandargs.parse_args().public_s3:
 		import publics3
-		publics3.publics3(commandargs)
+		publics3.publics3(bk)
 
 	if commandargs.parse_args().iam_keys:
 		import iamkeys
-		iamkeys.iamkeys(commandargs)
+		iamkeys.iamkeys(bk)
 
 	return "AWS Security Bot ran succesfully."
-
 
 # Only execute main() if we're being executed, not if we're being imported.
 if __name__ == "__main__":
